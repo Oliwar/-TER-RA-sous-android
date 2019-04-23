@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/jouer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:onClick="onJouerClick"
+        android:text="@string/jouer"
+        android:layout_marginBottom="10dp"
+        android:layout_weight=".30"
+        android:textSize="80sp"/>
+
+    <Button
+        android:id="@+id/options"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:onClick="onOptionsClick"
+        android:text="@string/options"
+        android:layout_marginBottom="10dp"
+        android:layout_weight=".30"
+        android:textSize="80sp"/>
+
+    <Button
+        android:id="@+id/quitter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:onClick="onQuitterClick"
+        android:text="@string/quitter"
+        android:layout_weight=".30"
+        android:textSize="80sp"/>
+</LinearLayout>
