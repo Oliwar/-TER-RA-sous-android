@@ -36,7 +36,6 @@
             android:exported="true"
             android:screenOrientation="locked"
             android:theme="@style/Theme.AppCompat.NoActionBar">
-
         </activity>
         <!--
  This tag indicates that this application requires ARCore.  This results in the Google Play

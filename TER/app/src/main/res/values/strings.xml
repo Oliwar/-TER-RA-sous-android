@@ -25,4 +25,5 @@
     <string name="togglebutton">ToggleButton</string>
     <string name="inventory_visible">↓</string>
     <string name="inventory_invisible">↑</string>
+    <string name="aide">Aide</string>
 </resources>

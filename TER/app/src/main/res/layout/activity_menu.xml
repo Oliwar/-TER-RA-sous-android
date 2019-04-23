@@ -25,12 +25,12 @@
         android:textSize="80sp"/>
 
     <Button
-        android:id="@+id/quitter"
+        android:id="@+id/aide"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:onClick="onQuitterClick"
-        android:text="@string/quitter"
         android:layout_weight=".30"
-        android:textSize="80sp"/>
+        android:baselineAligned="false"
+        android:onClick="onAideClick"
+        android:text="@string/aide"
+        android:textSize="80sp" />
 </LinearLayout>

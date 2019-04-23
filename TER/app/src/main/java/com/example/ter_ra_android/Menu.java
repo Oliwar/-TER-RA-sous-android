@@ -24,9 +24,7 @@ public class Menu extends AppCompatActivity {
         Toast.makeText(Menu.this, "Options", Toast.LENGTH_SHORT).show();
     }
 
-    public void onQuitterClick(View view) {
-        Toast.makeText(Menu.this, "Quitter", Toast.LENGTH_SHORT).show();
-        finish();
-        System.exit(0);
+    public void onAideClick(View view) {
+        Toast.makeText(Menu.this, "Aide", Toast.LENGTH_SHORT).show();
     }
 }
