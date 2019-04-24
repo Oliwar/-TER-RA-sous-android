@@ -16,6 +16,7 @@ package com.example.ter_ra_android;
  * limitations under the License.
  */
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -104,45 +105,50 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         startActivity(intent);
     }
 
-    private Animation animInventory(int fromX, int toX, int fromY, int toY, final long duration) {
-
-        Animation anim = new TranslateAnimation(fromX, toX, fromY, toY); //creates animation
-        anim.setDuration(duration);
-        ToggleButton tb = findViewById(R.id.toggleButton);
-
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                tb.setClickable(false);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                tb.setClickable(true);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-
-        return anim;
-    }
-
     public void hideOrShowInventory(View view) {
-        view.setClickable(false);
-
         if(!isHide){
             mInventory.animate().y(mInventory.getY() + mInventory.getHeight()).setDuration(1000);
-            view.animate().y(view.getY() + mInventory.getHeight()).setDuration(1000);
+            view.animate().y(view.getY() + mInventory.getHeight()).setDuration(1000).setListener(new Animator.AnimatorListener() {
+
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                view.setClickable(false);
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                view.setClickable(true);
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) { }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) { }
+                        });
             isHide = true;
         } else{
             mInventory.animate().y(mInventory.getY() - mInventory.getHeight()).setDuration(1000);
-            view.animate().y(view.getY() - mInventory.getHeight()).setDuration(1000);
+            view.animate().y(view.getY() - mInventory.getHeight()).setDuration(1000).setListener(new Animator.AnimatorListener() {
+
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    view.setClickable(false);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    view.setClickable(true);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) { }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) { }
+            });
             isHide = false;
         }
-
-        view.setClickable(true);
     }
 
     // Anchors created from taps used for object placing with a given color.
