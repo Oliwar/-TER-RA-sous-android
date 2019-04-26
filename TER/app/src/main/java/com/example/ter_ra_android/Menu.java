@@ -26,5 +26,7 @@ public class Menu extends AppCompatActivity {
 
     public void onAideClick(View view) {
         Toast.makeText(Menu.this, "Aide", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, Help.class);
+        startActivity(intent);
     }
 }

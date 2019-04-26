@@ -26,4 +26,6 @@
     <string name="inventory_visible">↓</string>
     <string name="inventory_invisible">↑</string>
     <string name="aide">Aide</string>
+    <string name="help_instructions">1- Scanner la pièce\n\n2- Appuyer sur "Terminer"\n\n3- Jouer!</string>
+    <string name="help_title">Instructions</string>
 </resources>
