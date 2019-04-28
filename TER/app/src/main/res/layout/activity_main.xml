@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.google.ar.core.examples.java.helloar.HelloArActivity">
+    tools:context="com.example.ter_ra_android.MainActivity">
 
   <android.opengl.GLSurfaceView
       android:id="@+id/surfaceview"
@@ -41,7 +41,6 @@
       android:layout_height="wrap_content"
       android:layout_alignBottom="@id/surfaceview"
       android:background="#00BCD4"
-      android:visibility="visible"
       app:menu="@menu/inventory" />
 
   <ToggleButton
@@ -54,6 +53,15 @@
       android:onClick="hideOrShowInventory"
       android:text="@string/togglebutton"
       android:textOff="@string/inventory_visible"
-      android:textOn="@string/inventory_invisible" />
+      android:textOn="@string/inventory_invisible"/>
+
+  <Button
+      android:id="@+id/terminate"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/terminer"
+      android:layout_alignBottom="@id/surfaceview"
+      android:layout_centerHorizontal="true"
+      android:onClick="terminate"/>
 
 </RelativeLayout>

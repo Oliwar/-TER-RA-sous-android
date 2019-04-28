@@ -28,7 +28,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private BottomNavigationView mInventory;
+    private ToggleButton mToggleButton;
+    private Button mTerminate;
     private boolean isHide = false;
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
@@ -148,6 +152,24 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         }
     }
 
+    public void terminate(View view) {
+        view.setVisibility(View.GONE);
+        mInventory.setVisibility(View.VISIBLE);
+        mToggleButton.setVisibility(View.VISIBLE);
+
+        deletePlane();
+
+        PlaceObjects();
+    }
+
+    private void deletePlane() {
+        //Todo: Supprimer la visualisation des plans scannés
+    }
+
+    private void PlaceObjects() {
+        //Todo: Placer les objets
+    }
+
     // Anchors created from taps used for object placing with a given color.
     private static class ColoredAnchor {
         public final Anchor anchor;
@@ -168,6 +190,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setContentView(R.layout.activity_main);
 
         initInventory();
+
+        mToggleButton = findViewById(R.id.toggleButton);
+        mToggleButton.setVisibility(View.GONE);
+
+        mTerminate = findViewById(R.id.terminate);
+        mTerminate.setVisibility(View.GONE);
 
         surfaceView = findViewById(R.id.surfaceview);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
@@ -204,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 return true;
             }
         });
+        mInventory.setVisibility(View.GONE);
     }
 
     @Override
@@ -390,6 +419,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 pointCloudRenderer.update(pointCloud);
                 pointCloudRenderer.draw(viewmtx, projmtx);
             }
+
+
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (hasTrackingPlane())
+                        mTerminate.setVisibility(View.VISIBLE);
+                    else
+                        mTerminate.setVisibility(View.GONE);
+                }
+            });
 
             // No tracking error at this point. If we detected any plane, then hide the
             // message UI, otherwise show searchingPlane message.
