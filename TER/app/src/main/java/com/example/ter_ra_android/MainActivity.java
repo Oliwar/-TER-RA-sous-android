@@ -64,6 +64,8 @@ import java.util.ArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+
 /**
  * This is a simple example that shows how to create an augmented reality (AR) application using the
  * ARCore API. The application will display any detected planes and will allow the user to tap on a
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private ToggleButton mToggleButton;
     private Button mTerminate;
     private boolean isHide = false;
+    private boolean isHideForever = false;
+
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView surfaceView;
@@ -152,8 +156,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         }
     }
 
-    public void terminate(View view) {
+    public void onTerminateClick(View view) {
         view.setVisibility(View.GONE);
+        isHideForever = true;
         mInventory.setVisibility(View.VISIBLE);
         mToggleButton.setVisibility(View.VISIBLE);
 
@@ -368,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear screen to notify driver it should not load any pixels from previous frame.
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClear(GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         if (session == null) {
             return;
@@ -425,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
                 @Override
                 public void run() {
-                    if (hasTrackingPlane())
+                    if (hasTrackingPlane() && !isHideForever)
                         mTerminate.setVisibility(View.VISIBLE);
                     else
                         mTerminate.setVisibility(View.GONE);
