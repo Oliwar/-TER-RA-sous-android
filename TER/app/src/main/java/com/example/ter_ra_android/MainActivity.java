@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private Button mTerminate;
     private boolean isHide = false;
     private boolean isHideForever = false;
-
+    private boolean displayPlane = true;
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView surfaceView;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
     private final ObjectRenderer virtualObject = new ObjectRenderer();
     private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
-    private final PlaneRenderer planeRenderer = new PlaneRenderer();
+    private PlaneRenderer planeRenderer = new PlaneRenderer();
     private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
@@ -162,13 +162,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mInventory.setVisibility(View.VISIBLE);
         mToggleButton.setVisibility(View.VISIBLE);
 
-        deletePlane();
+        displayPlane = false;
 
         PlaceObjects();
-    }
-
-    private void deletePlane() {
-        //Todo: Supprimer la visualisation des plans scannés
     }
 
     private void PlaceObjects() {
@@ -420,14 +416,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
             // Visualize tracked points.
             // Use try-with-resources to automatically release the point cloud.
-            try (PointCloud pointCloud = frame.acquirePointCloud()) {
-                pointCloudRenderer.update(pointCloud);
-                pointCloudRenderer.draw(viewmtx, projmtx);
+            if(displayPlane){
+                try (PointCloud pointCloud = frame.acquirePointCloud()) {
+                    pointCloudRenderer.update(pointCloud);
+                    pointCloudRenderer.draw(viewmtx, projmtx);
+                }
             }
 
-
             runOnUiThread(new Runnable() {
-
                 @Override
                 public void run() {
                     if (hasTrackingPlane() && !isHideForever)
@@ -446,8 +442,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
 
             // Visualize planes.
-            planeRenderer.drawPlanes(
-                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
+            if(displayPlane) {
+                planeRenderer.drawPlanes(
+                        session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
+            }
 
             // Visualize anchors created by touch.
             float scaleFactor = 1.0f;

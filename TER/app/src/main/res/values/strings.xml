@@ -29,4 +29,5 @@
     <string name="help_instructions">1- Scanner la pièce\n\n2- Appuyer sur "Terminer"\n\n3- Jouer!</string>
     <string name="help_title">Instructions</string>
     <string name="terminer">Terminer</string>
+    <string name="menu_title">Escape game</string>
 </resources>
