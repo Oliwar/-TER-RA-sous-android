@@ -40,6 +40,7 @@ import com.google.ar.core.Plane;
 import com.google.ar.core.Point;
 import com.google.ar.core.Point.OrientationMode;
 import com.google.ar.core.PointCloud;
+import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
@@ -60,7 +61,10 @@ import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Random;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -73,6 +77,8 @@ import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
  */
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static Random rand;
 
     private BottomNavigationView mInventory;
     private ToggleButton mToggleButton;
@@ -162,13 +168,64 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mInventory.setVisibility(View.VISIBLE);
         mToggleButton.setVisibility(View.VISIBLE);
 
-        displayPlane = false;
-
         PlaceObjects();
+
+        displayPlane = false;
     }
 
     private void PlaceObjects() {
-        //Todo: Placer les objets
+        float[] objColor = new float[] {139.0f, 195.0f, 74.0f, 255.0f}; //vert
+        Anchor anchor;
+        float maxX;
+        float maxZ;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        for (Plane plane : session.getAllTrackables(Plane.class)) {
+
+            //find a random spot on the plane in the X
+            // The width of the plan is 2*extentX in the range center.x +/- extentX
+            maxX = plane.getExtentX() * 2;
+            randomX = (maxX * rand.nextFloat()) - plane.getExtentX();
+
+            Log.e(TAG,"plane.getExtentX() : " + plane.getExtentX() );
+            Log.e(TAG,"maxX : " + maxX );
+            Log.e(TAG,"randomX : " + randomX );
+
+            maxZ = plane.getExtentZ() * 2;
+            randomZ = (maxZ * rand.nextFloat()) - plane.getExtentZ();
+
+            Log.e(TAG,"plane.getExtentZ() : " + plane.getExtentZ() );
+            Log.e(TAG,"maxZ : " + maxZ );
+            Log.e(TAG,"randomZ : " + randomZ );
+
+            pose = plane.getCenterPose();
+            Log.e(TAG,"centerPose : " + pose );
+
+            translation = pose.getTranslation();
+            rotation = pose.getRotationQuaternion();
+
+            Log.e(TAG,"translation[0] : " + translation[0] );
+            translation[0] += randomX;
+            Log.e(TAG,"translation[0] : " + translation[0] );
+
+            Log.e(TAG,"translation[2] : " + translation[2] );
+            translation[2] += randomZ;
+            Log.e(TAG,"translation[2] : " + translation[2] );
+
+            pose = new Pose(translation, rotation);
+
+            //Devrait être toujours vrai
+            if(plane.isPoseInExtents(pose)){
+                Log.e(TAG, "OK");
+            }
+
+            anchor = plane.createAnchor(pose);
+            anchors.add(new ColoredAnchor(anchor, objColor));
+        }
     }
 
     // Anchors created from taps used for object placing with a given color.
@@ -187,6 +244,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        rand = new Random();
 
         setContentView(R.layout.activity_main);
 
@@ -388,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Camera camera = frame.getCamera();
 
             // Handle one tap per frame.
-            handleTap(frame, camera);
+            //handleTap(frame, camera);
 
             // If frame is ready, render camera preview image to the GL surface.
             backgroundRenderer.draw(frame);
