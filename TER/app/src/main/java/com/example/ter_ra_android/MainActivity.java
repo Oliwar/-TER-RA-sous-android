@@ -61,7 +61,6 @@ import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -176,8 +175,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private void PlaceObjects() {
         float[] objColor = new float[] {139.0f, 195.0f, 74.0f, 255.0f}; //vert
         Anchor anchor;
-        float maxX;
-        float maxZ;
         float randomX;
         float randomZ;
         Pose pose;
@@ -186,20 +183,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         for (Plane plane : session.getAllTrackables(Plane.class)) {
 
-            //find a random spot on the plane in the X
-            // The width of the plan is 2*extentX in the range center.x +/- extentX
-            maxX = plane.getExtentX() * 2;
-            randomX = (maxX * rand.nextFloat()) - plane.getExtentX();
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
             Log.e(TAG,"plane.getExtentX() : " + plane.getExtentX() );
-            Log.e(TAG,"maxX : " + maxX );
             Log.e(TAG,"randomX : " + randomX );
 
-            maxZ = plane.getExtentZ() * 2;
-            randomZ = (maxZ * rand.nextFloat()) - plane.getExtentZ();
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
             Log.e(TAG,"plane.getExtentZ() : " + plane.getExtentZ() );
-            Log.e(TAG,"maxZ : " + maxZ );
             Log.e(TAG,"randomZ : " + randomZ );
 
             pose = plane.getCenterPose();
@@ -217,11 +208,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Log.e(TAG,"translation[2] : " + translation[2] );
 
             pose = new Pose(translation, rotation);
-
-            //Devrait être toujours vrai
-            if(plane.isPoseInExtents(pose)){
-                Log.e(TAG, "OK");
-            }
 
             anchor = plane.createAnchor(pose);
             anchors.add(new ColoredAnchor(anchor, objColor));
@@ -273,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setWillNotDraw(false);
 
         installRequested = false;
+
     }
 
     private void initInventory(){
