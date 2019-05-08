@@ -62,6 +62,7 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -86,6 +87,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private boolean isHideForever = false;
     private boolean displayPlane = true;
 
+    //Objects color
+    private static final float[] crowbarColor = {162.0f, 31.0f, 31.0f, 255.0f}; //??
+    private static final float[] keyColor = {252.0f, 220.0f, 18.0f, 255.0f};
+    private static final float[] sideTableColor = {120.0f, 84.0f, 71.0f, 255.0f};
+    private static final float[] treasureTrunkColor = {121.0f, 84.0f, 71.0f, 255.0f};
+    private static final float[] cornerTableColor = {122.0f, 84.0f, 71.0f, 255.0f}; //??
+    private static final float[] woodenColor = {123.0f, 84.0f, 71.0f, 255.0f};
+
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView surfaceView;
 
@@ -97,8 +106,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private TapHelper tapHelper;
 
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-    private final ObjectRenderer virtualObject = new ObjectRenderer();
-    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
+    private final ObjectRenderer virtualKey = new ObjectRenderer();
+    private final ObjectRenderer virtualCrowbar = new ObjectRenderer();
+    private final ObjectRenderer virtualSideTable = new ObjectRenderer();
+    private final ObjectRenderer virtualTreasureTrunk = new ObjectRenderer();
+    private final ObjectRenderer virtualCornerTable = new ObjectRenderer();
+    private final ObjectRenderer virtualWooden = new ObjectRenderer();
     private PlaneRenderer planeRenderer = new PlaneRenderer();
     private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
 
@@ -167,12 +180,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mInventory.setVisibility(View.VISIBLE);
         mToggleButton.setVisibility(View.VISIBLE);
 
-        PlaceObjects();
+        placeKey();
+        //placeCrowbar();
+        placeSideTable();
+        placeTreasureTrunk();
+        //placeCornerTable();
+        placeWooden();
+        //placeObjects();
 
         displayPlane = false;
     }
 
-    private void PlaceObjects() {
+    private void placeObjects() {
         float[] objColor = new float[] {139.0f, 195.0f, 74.0f, 255.0f}; //vert
         Anchor anchor;
         float randomX;
@@ -212,6 +231,232 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             anchor = plane.createAnchor(pose);
             anchors.add(new ColoredAnchor(anchor, objColor));
         }
+    }
+
+    private void placeKey() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+        rotation[0] = 90;
+        rotation[1] = 0;
+        rotation[2] = 0;
+        rotation[3] = 90;
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, keyColor));
+    }
+
+    private void placeCrowbar() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+        rotation[0] = 90;
+        rotation[1] = 0;
+        rotation[2] = 0;
+        rotation[3] = 90;
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, crowbarColor));
+    }
+
+    private void placeSideTable() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, sideTableColor));
+    }
+
+    private void placeTreasureTrunk() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, treasureTrunkColor));
+    }
+
+    private void placeCornerTable() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, cornerTableColor));
+    }
+
+    private void placeWooden() {
+        Anchor anchor;
+        float randomX;
+        float randomZ;
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+
+        int size = session.getAllTrackables(Plane.class).size();
+        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+
+        int rng;
+        Plane plane;
+        do{
+            rng = rand.nextInt(size);
+            plane = (Plane) planes[rng];
+        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+
+
+        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+
+        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+        pose = plane.getCenterPose();
+
+        translation = pose.getTranslation();
+        translation[0] += randomX;
+        translation[2] += randomZ;
+
+        rotation = pose.getRotationQuaternion();
+
+        pose = new Pose(translation, rotation);
+
+        anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, woodenColor));
     }
 
     // Anchors created from taps used for object placing with a given color.
@@ -393,13 +638,23 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png");
             pointCloudRenderer.createOnGlThread(/*context=*/ this);
 
-            virtualObject.createOnGlThread(/*context=*/ this, "models/andy.obj", "models/andy.png");
-            virtualObject.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+            virtualKey.createOnGlThread(/*context=*/ this, "models/key.obj", "models/key.png");
+            virtualKey.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
-            virtualObjectShadow.createOnGlThread(
-                    /*context=*/ this, "models/andy_shadow.obj", "models/andy_shadow.png");
-            virtualObjectShadow.setBlendMode(BlendMode.Shadow);
-            virtualObjectShadow.setMaterialProperties(1.0f, 0.0f, 0.0f, 1.0f);
+//            virtualCrowbar.createOnGlThread(/*context=*/ this, "models/crowbar.obj", "models/white.png");
+//            virtualCrowbar.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+
+            virtualSideTable.createOnGlThread(/*context=*/ this, "models/sidetable.obj", "models/white.png");
+            virtualSideTable.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+
+            virtualTreasureTrunk.createOnGlThread(/*context=*/ this, "models/treasuretrunk.obj", "models/white.png");
+            virtualTreasureTrunk.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+
+//            virtualCornerTable.createOnGlThread(/*context=*/ this, "models/vintagecornertable.obj", "models/white.png");
+//            virtualCornerTable.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+
+            virtualWooden.createOnGlThread(/*context=*/ this, "models/wooden.obj", "models/white.png");
+            virtualWooden.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to read an asset file", e);
@@ -494,7 +749,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
 
             // Visualize anchors created by touch.
-            float scaleFactor = 1.0f;
             for (ColoredAnchor coloredAnchor : anchors) {
                 if (coloredAnchor.anchor.getTrackingState() != TrackingState.TRACKING) {
                     continue;
@@ -503,11 +757,37 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 // during calls to session.update() as ARCore refines its estimate of the world.
                 coloredAnchor.anchor.getPose().toMatrix(anchorMatrix, 0);
 
-                // Update and draw the model and its shadow.
-                virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
-                virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
-                virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
-                virtualObjectShadow.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                // Update and draw the model.
+
+//                if(Arrays.equals(coloredAnchor.color, crowbarColor)){
+//                    virtualCrowbar.updateModelMatrix(anchorMatrix, 0.1f);
+//                    virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+//                }
+
+                if(Arrays.equals(coloredAnchor.color, keyColor)){
+                    virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
+                    virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
+
+                if(Arrays.equals(coloredAnchor.color, sideTableColor)){
+                    virtualSideTable.updateModelMatrix(anchorMatrix, 2.0f);
+                    virtualSideTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
+
+                if(Arrays.equals(coloredAnchor.color, treasureTrunkColor)){
+                    virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.05f);
+                    virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
+
+//                if(Arrays.equals(coloredAnchor.color, cornerTableColor)){
+//                    virtualCornerTable.updateModelMatrix(anchorMatrix, 0.5f);
+//                    virtualCornerTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+//                }
+
+                if(Arrays.equals(coloredAnchor.color, woodenColor)){
+                    virtualWooden.updateModelMatrix(anchorMatrix, 2.0f);
+                    virtualWooden.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
             }
 
         } catch (Throwable t) {
