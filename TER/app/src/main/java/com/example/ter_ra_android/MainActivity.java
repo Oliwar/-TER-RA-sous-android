@@ -88,11 +88,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private boolean displayPlane = true;
 
     //Objects color
-    private static final float[] crowbarColor = {162.0f, 31.0f, 31.0f, 255.0f}; //??
+    private static final float[] crowbarColor = {75.0f, 0.0f, 0.0f, 255.0f};
     private static final float[] keyColor = {252.0f, 220.0f, 18.0f, 255.0f};
     private static final float[] sideTableColor = {120.0f, 84.0f, 71.0f, 255.0f};
     private static final float[] treasureTrunkColor = {121.0f, 84.0f, 71.0f, 255.0f};
-    private static final float[] cornerTableColor = {122.0f, 84.0f, 71.0f, 255.0f}; //??
+    private static final float[] cornerTableColor = {122.0f, 84.0f, 71.0f, 255.0f};
     private static final float[] woodenColor = {123.0f, 84.0f, 71.0f, 255.0f};
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
@@ -180,67 +180,21 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mInventory.setVisibility(View.VISIBLE);
         mToggleButton.setVisibility(View.VISIBLE);
 
-        placeKey();
-        //placeCrowbar();
-        placeSideTable();
-        placeTreasureTrunk();
-        //placeCornerTable();
-        placeWooden();
-        //placeObjects();
+        placeObjects();
 
         displayPlane = false;
     }
 
     private void placeObjects() {
-        float[] objColor = new float[] {139.0f, 195.0f, 74.0f, 255.0f}; //vert
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
-        for (Plane plane : session.getAllTrackables(Plane.class)) {
-
-            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
-
-            Log.e(TAG,"plane.getExtentX() : " + plane.getExtentX() );
-            Log.e(TAG,"randomX : " + randomX );
-
-            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
-
-            Log.e(TAG,"plane.getExtentZ() : " + plane.getExtentZ() );
-            Log.e(TAG,"randomZ : " + randomZ );
-
-            pose = plane.getCenterPose();
-            Log.e(TAG,"centerPose : " + pose );
-
-            translation = pose.getTranslation();
-            rotation = pose.getRotationQuaternion();
-
-            Log.e(TAG,"translation[0] : " + translation[0] );
-            translation[0] += randomX;
-            Log.e(TAG,"translation[0] : " + translation[0] );
-
-            Log.e(TAG,"translation[2] : " + translation[2] );
-            translation[2] += randomZ;
-            Log.e(TAG,"translation[2] : " + translation[2] );
-
-            pose = new Pose(translation, rotation);
-
-            anchor = plane.createAnchor(pose);
-            anchors.add(new ColoredAnchor(anchor, objColor));
-        }
+        placeKey(); //ok
+        //placeCrowbar(); //ok
+        //placeSideTable(); //ameliorer le placement random
+        placeTreasureTrunk(); //ok
+        //placeCornerTable(); //pas de texture
+        //placeWooden(); //Pas très plat
     }
 
     private void placeKey() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -251,17 +205,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             plane = (Plane) planes[rng];
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
         rotation[0] = 90;
         rotation[1] = 0;
         rotation[2] = 0;
@@ -269,18 +223,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, keyColor));
     }
 
     private void placeCrowbar() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -291,17 +238,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             plane = (Plane) planes[rng];
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
+        translation[1] += 0;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
         rotation[0] = 90;
         rotation[1] = 0;
         rotation[2] = 0;
@@ -309,18 +257,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, crowbarColor));
     }
 
     private void placeSideTable() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -331,32 +272,26 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             plane = (Plane) planes[rng];
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
+        translation[1] += 0.2f;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, sideTableColor));
     }
 
     private void placeTreasureTrunk() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -367,32 +302,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             plane = (Plane) planes[rng];
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, treasureTrunkColor));
     }
 
     private void placeCornerTable() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -404,32 +332,26 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
+        translation[1] += 0.9f;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, cornerTableColor));
     }
 
     private void placeWooden() {
-        Anchor anchor;
-        float randomX;
-        float randomZ;
-        Pose pose;
-        float[] translation;
-        float[] rotation;
-
         int size = session.getAllTrackables(Plane.class).size();
         Object[] planes = session.getAllTrackables(Plane.class).toArray();
 
@@ -441,21 +363,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
 
 
-        randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
 
-        randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        pose = plane.getCenterPose();
+        Pose pose = plane.getCenterPose();
 
-        translation = pose.getTranslation();
+        float[] translation = pose.getTranslation();
         translation[0] += randomX;
         translation[2] += randomZ;
 
-        rotation = pose.getRotationQuaternion();
+        float[] rotation = pose.getRotationQuaternion();
+//        rotation[0] += 1;
+//        rotation[1] += 0;
+//        rotation[2] += 0;
+        //rotation[3] = 4;
 
         pose = new Pose(translation, rotation);
 
-        anchor = plane.createAnchor(pose);
+        Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, woodenColor));
     }
 
@@ -638,11 +564,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png");
             pointCloudRenderer.createOnGlThread(/*context=*/ this);
 
-            virtualKey.createOnGlThread(/*context=*/ this, "models/key.obj", "models/key.png");
+            virtualKey.createOnGlThread(/*context=*/ this, "models/key.obj", "models/white.png");
             virtualKey.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
-//            virtualCrowbar.createOnGlThread(/*context=*/ this, "models/crowbar.obj", "models/white.png");
-//            virtualCrowbar.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+            virtualCrowbar.createOnGlThread(/*context=*/ this, "models/crowbar2.obj", "models/white.png");
+            virtualCrowbar.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
             virtualSideTable.createOnGlThread(/*context=*/ this, "models/sidetable.obj", "models/white.png");
             virtualSideTable.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
@@ -650,8 +576,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             virtualTreasureTrunk.createOnGlThread(/*context=*/ this, "models/treasuretrunk.obj", "models/white.png");
             virtualTreasureTrunk.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
-//            virtualCornerTable.createOnGlThread(/*context=*/ this, "models/vintagecornertable.obj", "models/white.png");
-//            virtualCornerTable.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
+            virtualCornerTable.createOnGlThread(/*context=*/ this, "models/vintagecornertable.obj", "models/white.png");
+            virtualCornerTable.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
 
             virtualWooden.createOnGlThread(/*context=*/ this, "models/wooden.obj", "models/white.png");
             virtualWooden.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
@@ -759,10 +685,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
                 // Update and draw the model.
 
-//                if(Arrays.equals(coloredAnchor.color, crowbarColor)){
-//                    virtualCrowbar.updateModelMatrix(anchorMatrix, 0.1f);
-//                    virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
-//                }
+                if(Arrays.equals(coloredAnchor.color, crowbarColor)){
+                    virtualCrowbar.updateModelMatrix(anchorMatrix, 0.005f);
+                    virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
 
                 if(Arrays.equals(coloredAnchor.color, keyColor)){
                     virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
@@ -779,10 +705,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
 
-//                if(Arrays.equals(coloredAnchor.color, cornerTableColor)){
-//                    virtualCornerTable.updateModelMatrix(anchorMatrix, 0.5f);
-//                    virtualCornerTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
-//                }
+                if(Arrays.equals(coloredAnchor.color, cornerTableColor)){
+                    virtualCornerTable.updateModelMatrix(anchorMatrix, 0.5f);
+                    virtualCornerTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
 
                 if(Arrays.equals(coloredAnchor.color, woodenColor)){
                     virtualWooden.updateModelMatrix(anchorMatrix, 2.0f);
