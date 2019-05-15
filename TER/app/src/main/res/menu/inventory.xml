@@ -4,13 +4,4 @@
         android:id="@+id/inventory_key"
         android:icon="@drawable/ic_key"
         android:title="@string/key" />
-    <item android:id="@+id/inventory_build"
-        android:title="@string/build"
-        android:icon="@drawable/ic_build" />
-    <item android:id="@+id/inventory_print"
-        android:title="@string/print"
-        android:icon="@drawable/ic_print" />
-    <item android:id="@+id/inventory_key_black"
-        android:title="@string/key"
-        android:icon="@drawable/ic_key_black" />
 </menu>

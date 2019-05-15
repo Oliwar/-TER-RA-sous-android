@@ -18,9 +18,7 @@
     <string name="quitter">Quitter</string>
     <string name="options">Options</string>
     <string name="jouer">Jouer</string>
-    <string name="key">Key</string>
-    <string name="build">Build</string>
-    <string name="print">Print</string>
+    <string name="key">Clés</string>
     <string name="menu">Menu</string>
     <string name="togglebutton">ToggleButton</string>
     <string name="inventory_visible">↓</string>
@@ -30,4 +28,5 @@
     <string name="help_title">Instructions</string>
     <string name="terminer">Terminer</string>
     <string name="menu_title">Escape game</string>
+    <string name="noObject">Aucun objet</string>
 </resources>

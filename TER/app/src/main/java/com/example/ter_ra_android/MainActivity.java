@@ -17,6 +17,7 @@ package com.example.ter_ra_android;
  */
 
 import android.animation.Animator;
+import android.content.ClipData;
 import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -483,6 +484,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private void initInventory(){
         mInventory = findViewById(R.id.inventory);
+        MenuItem key = mInventory.getMenu().findItem(R.id.inventory_key);
+        key.setVisible(false);
         mInventory.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

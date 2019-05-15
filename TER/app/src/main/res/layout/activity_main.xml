@@ -41,7 +41,18 @@
       android:layout_height="wrap_content"
       android:layout_alignBottom="@id/surfaceview"
       android:background="#00BCD4"
-      app:menu="@menu/inventory" />
+      app:menu="@menu/inventory" >
+
+    <TextView
+        android:id="@+id/noObjects"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/noObject"
+        android:textColor="#000000"
+        app:autoSizeTextType="uniform" />
+  </android.support.design.widget.BottomNavigationView>
 
   <ToggleButton
       android:id="@+id/toggleButton"
@@ -59,9 +70,9 @@
       android:id="@+id/terminate"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/terminer"
       android:layout_alignBottom="@id/surfaceview"
       android:layout_centerHorizontal="true"
-      android:onClick="onTerminateClick"/>
+      android:onClick="onTerminateClick"
+      android:text="@string/terminer" />
 
 </RelativeLayout>
