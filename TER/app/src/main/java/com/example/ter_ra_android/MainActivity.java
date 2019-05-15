@@ -31,6 +31,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.example.common.helpers.CameraPermissionHelper;
+import com.example.common.helpers.DisplayRotationHelper;
+import com.example.common.helpers.FullScreenHelper;
+import com.example.common.helpers.SnackbarHelper;
+import com.example.common.helpers.TapHelper;
+import com.example.common.rendering.BackgroundRenderer;
+import com.example.common.rendering.ObjectRenderer;
+import com.example.common.rendering.PlaneRenderer;
+import com.example.common.rendering.PointCloudRenderer;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
@@ -44,25 +54,17 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
-import com.example.common.helpers.CameraPermissionHelper;
-import com.example.common.helpers.DisplayRotationHelper;
-import com.example.common.helpers.FullScreenHelper;
-import com.example.common.helpers.SnackbarHelper;
-import com.example.common.helpers.TapHelper;
-import com.example.common.rendering.BackgroundRenderer;
-import com.example.common.rendering.ObjectRenderer;
-import com.example.common.rendering.ObjectRenderer.BlendMode;
-import com.example.common.rendering.PlaneRenderer;
-import com.example.common.rendering.PointCloudRenderer;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final float[] anchorMatrix = new float[16];
     private static final float[] DEFAULT_COLOR = new float[] {0f, 0f, 0f, 0f};
 
-    private static final String SEARCHING_PLANE_MESSAGE = "Searching for surfaces...";
+    private static final String SEARCHING_PLANE_MESSAGE = "Veuillez scanner la pièce puis cliquez sur \"Terminer\"";
 
     public void onMenuClick(View view) {
         Log.e(TAG, "Menu");
@@ -187,134 +189,175 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private void placeObjects() {
         placeKey(); //ok
-        //placeCrowbar(); //ok
+        placeCrowbar(); //ok
         //placeSideTable(); //ameliorer le placement random
         placeTreasureTrunk(); //ok
         //placeCornerTable(); //pas de texture
-        //placeWooden(); //Pas très plat
+        placeWooden(); //Pas très plat
     }
 
     private void placeKey() {
-        int size = session.getAllTrackables(Plane.class).size();
-        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
         Plane plane;
+        float minX = 0.5f;
+        float minZ = 0.5f;
         do{
-            rng = rand.nextInt(size);
-            plane = (Plane) planes[rng];
-        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
 
-        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+            pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
 
-        Pose pose = plane.getCenterPose();
+            rotation = pose.getRotationQuaternion();
+            rotation[0] = 90;
+            rotation[1] = 0;
+            rotation[2] = 0;
+            rotation[3] = 90;
 
-        float[] translation = pose.getTranslation();
-        translation[0] += randomX;
-        translation[2] += randomZ;
-
-        float[] rotation = pose.getRotationQuaternion();
-        rotation[0] = 90;
-        rotation[1] = 0;
-        rotation[2] = 0;
-        rotation[3] = 90;
-
-        pose = new Pose(translation, rotation);
+            pose = new Pose(translation, rotation);
+        } while (!plane.isPoseInPolygon(pose));
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, keyColor));
     }
 
     private void placeCrowbar() {
-        int size = session.getAllTrackables(Plane.class).size();
-        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
         Plane plane;
+        float minX = 2;
+        float minZ = 2;
         do{
-            rng = rand.nextInt(size);
-            plane = (Plane) planes[rng];
-        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
 
-        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+            pose = plane.getCenterPose();
 
-        Pose pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
 
-        float[] translation = pose.getTranslation();
-        translation[0] += randomX;
-        translation[1] += 0;
-        translation[2] += randomZ;
+            rotation = pose.getRotationQuaternion();
+            rotation[0] = 90;
+            rotation[1] = 0;
+            rotation[2] = 0;
+            rotation[3] = 90;
 
-        float[] rotation = pose.getRotationQuaternion();
-        rotation[0] = 90;
-        rotation[1] = 0;
-        rotation[2] = 0;
-        rotation[3] = 90;
-
-        pose = new Pose(translation, rotation);
+            pose = new Pose(translation, rotation);
+        } while (!plane.isPoseInPolygon(pose));
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, crowbarColor));
     }
 
     private void placeSideTable() {
-        int size = session.getAllTrackables(Plane.class).size();
-        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
         Plane plane;
+        float minX = 3;
+        float minZ = 3;
         do{
-            rng = rand.nextInt(size);
-            plane = (Plane) planes[rng];
-        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
 
-        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+            pose = plane.getCenterPose();
 
-        Pose pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
 
-        float[] translation = pose.getTranslation();
-        translation[0] += randomX;
-        translation[1] += 0.2f;
-        translation[2] += randomZ;
+            rotation = pose.getRotationQuaternion();
 
-        float[] rotation = pose.getRotationQuaternion();
-
-        pose = new Pose(translation, rotation);
+            pose = new Pose(translation, rotation);
+        } while (!plane.isPoseInPolygon(pose));
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, sideTableColor));
     }
 
     private void placeTreasureTrunk() {
-        int size = session.getAllTrackables(Plane.class).size();
-        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
         Plane plane;
+        float minX = 2;
+        float minZ = 2;
         do{
-            rng = rand.nextInt(size);
-            plane = (Plane) planes[rng];
-        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
 
-        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+            pose = plane.getCenterPose();
 
-        Pose pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
 
-        float[] translation = pose.getTranslation();
-        translation[0] += randomX;
-        translation[2] += randomZ;
+            rotation = pose.getRotationQuaternion();
 
-        float[] rotation = pose.getRotationQuaternion();
-
-        pose = new Pose(translation, rotation);
+            pose = new Pose(translation, rotation);
+        } while (!plane.isPoseInPolygon(pose));
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, treasureTrunkColor));
@@ -352,34 +395,40 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private void placeWooden() {
-        int size = session.getAllTrackables(Plane.class).size();
-        Object[] planes = session.getAllTrackables(Plane.class).toArray();
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
         Plane plane;
+        float minX = 1;
+        float minZ = 1;
         do{
-            rng = rand.nextInt(size);
-            plane = (Plane) planes[rng];
-        } while (plane.getType() != Plane.Type.HORIZONTAL_UPWARD_FACING);
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
 
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
-        float randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            pose = plane.getCenterPose();
 
-        float randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
 
-        Pose pose = plane.getCenterPose();
+            rotation = pose.getRotationQuaternion();
 
-        float[] translation = pose.getTranslation();
-        translation[0] += randomX;
-        translation[2] += randomZ;
-
-        float[] rotation = pose.getRotationQuaternion();
-//        rotation[0] += 1;
-//        rotation[1] += 0;
-//        rotation[2] += 0;
-        //rotation[3] = 4;
-
-        pose = new Pose(translation, rotation);
+            pose = new Pose(translation, rotation);
+        } while (!plane.isPoseInPolygon(pose));
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, woodenColor));
@@ -430,7 +479,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setWillNotDraw(false);
 
         installRequested = false;
-
     }
 
     private void initInventory(){
@@ -653,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (hasTrackingPlane() && !isHideForever)
+                    if (hasLargePlane(2, 2) && !isHideForever)
                         mTerminate.setVisibility(View.VISIBLE);
                     else
                         mTerminate.setVisibility(View.GONE);
@@ -686,7 +734,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 // Update and draw the model.
 
                 if(Arrays.equals(coloredAnchor.color, crowbarColor)){
-                    virtualCrowbar.updateModelMatrix(anchorMatrix, 0.005f);
+                    virtualCrowbar.updateModelMatrix(anchorMatrix, 0.002f);
                     virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
 
@@ -701,7 +749,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 }
 
                 if(Arrays.equals(coloredAnchor.color, treasureTrunkColor)){
-                    virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.05f);
+                    virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.03f);
                     virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
 
@@ -711,7 +759,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 }
 
                 if(Arrays.equals(coloredAnchor.color, woodenColor)){
-                    virtualWooden.updateModelMatrix(anchorMatrix, 2.0f);
+                    virtualWooden.updateModelMatrix(anchorMatrix, 1.8f);
                     virtualWooden.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
             }
@@ -773,6 +821,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             if (plane.getTrackingState() == TrackingState.TRACKING) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /** Checks if we detected at least one large plane. */
+    private boolean hasLargePlane(float minX, float minZ) {
+        for (Plane plane : session.getAllTrackables(Plane.class)) {
+            if (plane.getExtentX() > minX && plane.getExtentZ() > minZ) return true;
         }
         return false;
     }
