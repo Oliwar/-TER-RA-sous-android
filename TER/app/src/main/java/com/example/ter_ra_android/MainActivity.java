@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -86,9 +87,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private BottomNavigationView mInventory;
     private ToggleButton mToggleButton;
     private Button mTerminate;
+    private TextView mNoObject;
     private boolean isHide = false;
     private boolean isHideForever = false;
     private boolean displayPlane = true;
+    private boolean isKeyTaken = false;
+    private boolean isTreasureTrunkSelected = false;
 
     //Objects color
     private static final float[] crowbarColor = {75.0f, 0.0f, 0.0f, 255.0f};
@@ -97,6 +101,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private static final float[] treasureTrunkColor = {121.0f, 84.0f, 71.0f, 255.0f};
     private static final float[] cornerTableColor = {122.0f, 84.0f, 71.0f, 255.0f};
     private static final float[] woodenColor = {123.0f, 84.0f, 71.0f, 255.0f};
+
+    //Objects pose
+    private static Pose crowbarPose;
+    private static Pose keyPose;
+    private static Pose sideTablePose;
+    private static Pose treasureTrunkPose;
+    private static Pose cornerTablePose;
+    private static Pose woodenPose;
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView surfaceView;
@@ -190,11 +202,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private void placeObjects() {
         placeKey(); //ok
-        placeCrowbar(); //ok
+        //placeCrowbar(); //ok
         //placeSideTable(); //ameliorer le placement random
         placeTreasureTrunk(); //ok
         //placeCornerTable(); //pas de texture
-        placeWooden(); //Pas très plat
+        //placeWooden(); //Pas très plat
     }
 
     private void placeKey() {
@@ -236,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             pose = new Pose(translation, rotation);
         } while (!plane.isPoseInPolygon(pose));
 
+        keyPose = pose;
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, keyColor));
     }
@@ -360,6 +373,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             pose = new Pose(translation, rotation);
         } while (!plane.isPoseInPolygon(pose));
 
+        treasureTrunkPose = pose;
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, treasureTrunkColor));
     }
@@ -463,6 +477,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         mTerminate = findViewById(R.id.terminate);
         mTerminate.setVisibility(View.GONE);
+
+        mNoObject = findViewById(R.id.noObjects);
+        mNoObject.setVisibility(View.VISIBLE);
 
         surfaceView = findViewById(R.id.surfaceview);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
@@ -666,7 +683,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Camera camera = frame.getCamera();
 
             // Handle one tap per frame.
-            //handleTap(frame, camera);
+            handleTap(frame, camera);
 
             // If frame is ready, render camera preview image to the GL surface.
             backgroundRenderer.draw(frame);
@@ -706,8 +723,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 public void run() {
                     if (hasLargePlane(2, 2) && !isHideForever)
                         mTerminate.setVisibility(View.VISIBLE);
-                    else
-                        mTerminate.setVisibility(View.GONE);
+                    else mTerminate.setVisibility(View.GONE);
+
+                    if(mInventory.getMenu().hasVisibleItems()) mNoObject.setVisibility(View.GONE);
+                    else mNoObject.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -740,28 +759,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     virtualCrowbar.updateModelMatrix(anchorMatrix, 0.002f);
                     virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-
-                if(Arrays.equals(coloredAnchor.color, keyColor)){
-                    virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
-                    virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                else if(Arrays.equals(coloredAnchor.color, keyColor)){
+                    if(!isKeyTaken) {
+                        virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
+                        virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                    }
                 }
-
-                if(Arrays.equals(coloredAnchor.color, sideTableColor)){
+                else if(Arrays.equals(coloredAnchor.color, sideTableColor)){
                     virtualSideTable.updateModelMatrix(anchorMatrix, 2.0f);
                     virtualSideTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-
-                if(Arrays.equals(coloredAnchor.color, treasureTrunkColor)){
+                else if(Arrays.equals(coloredAnchor.color, treasureTrunkColor)){
                     virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.03f);
                     virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-
-                if(Arrays.equals(coloredAnchor.color, cornerTableColor)){
+                else if(Arrays.equals(coloredAnchor.color, cornerTableColor)){
                     virtualCornerTable.updateModelMatrix(anchorMatrix, 0.5f);
                     virtualCornerTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-
-                if(Arrays.equals(coloredAnchor.color, woodenColor)){
+                else if(Arrays.equals(coloredAnchor.color, woodenColor)){
                     virtualWooden.updateModelMatrix(anchorMatrix, 1.8f);
                     virtualWooden.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
@@ -778,39 +794,34 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         MotionEvent tap = tapHelper.poll();
         if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
             for (HitResult hit : frame.hitTest(tap)) {
-                // Check if any plane was hit, and if it was hit inside the plane polygon
-                Trackable trackable = hit.getTrackable();
-                // Creates an anchor if a plane or an oriented point was hit.
-                if ((trackable instanceof Plane
-                        && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                        && (PlaneRenderer.calculateDistanceToPlane(hit.getHitPose(), camera.getPose()) > 0))
-                        || (trackable instanceof Point
-                        && ((Point) trackable).getOrientationMode()
-                        == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-                    // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
-                    // Cap the number of objects created. This avoids overloading both the
-                    // rendering system and ARCore.
-                    if (anchors.size() >= 20) {
-                        anchors.get(0).anchor.detach();
-                        anchors.remove(0);
-                    }
 
-                    // Assign a color to the object for rendering based on the trackable type
-                    // this anchor attached to. For AR_TRACKABLE_POINT, it's blue color, and
-                    // for AR_TRACKABLE_PLANE, it's green color.
-                    float[] objColor;
-                    if (trackable instanceof Point) {
-                        objColor = new float[] {66.0f, 133.0f, 244.0f, 255.0f};
-                    } else if (trackable instanceof Plane) {
-                        objColor = new float[] {139.0f, 195.0f, 74.0f, 255.0f};
-                    } else {
-                        objColor = DEFAULT_COLOR;
-                    }
+                if(getDistance(hit.getHitPose(), keyPose) <= 0.1){
+                    Log.e(TAG, "Clef clické : " + getDistance(hit.getHitPose(), keyPose));
 
-                    // Adding an Anchor tells ARCore that it should track this position in
-                    // space. This anchor is created on the Plane to place the 3D model
-                    // in the correct position relative both to the world and to the plane.
-                    anchors.add(new ColoredAnchor(hit.createAnchor(), objColor));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mInventory.getMenu().findItem(R.id.inventory_key).setVisible(true);
+                        }
+                    });
+
+                    isKeyTaken = true;
+                    break;
+                }
+                if(getDistance(hit.getHitPose(), treasureTrunkPose) <= 0.2){
+                    Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), treasureTrunkPose));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(isKeyTaken){
+                                Toast.makeText(MainActivity.this, "Gagné !", Toast.LENGTH_SHORT).show();
+                                isTreasureTrunkSelected = false;
+                                mInventory.getMenu().findItem(R.id.inventory_key).setVisible(false);
+                            }
+                            else Toast.makeText(MainActivity.this, "Ce coffre est verrouillé!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
                     break;
                 }
@@ -835,4 +846,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         }
         return false;
     }
+
+    private double getDistance(Pose pose0, Pose pose1){
+        float dx = pose0.tx() - pose1.tx();
+        float dy = pose0.ty() - pose1.ty();
+        float dz = pose0.tz() - pose1.tz();
+        return Math.sqrt(dx * dx + dz * dz + dy * dy);
+    }
+
 }
