@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -202,11 +203,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private void placeObjects() {
         placeKey(); //ok
-        //placeCrowbar(); //ok
+        placeCrowbar(); //ok
         //placeSideTable(); //ameliorer le placement random
         placeTreasureTrunk(); //ok
         //placeCornerTable(); //pas de texture
-        //placeWooden(); //Pas très plat
+        placeWooden(); //Pas très plat
     }
 
     private void placeKey() {
@@ -230,9 +231,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         float[] rotation;
         float randomX;
         float randomZ;
+        boolean isAlone;
         do{
             randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
             randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.1;
+            if(randomX < 0) randomX += 0.1;
+            if(randomZ > 0) randomZ -= 0.1;
+            if(randomZ < 0) randomZ += 0.1;
 
             pose = plane.getCenterPose();
             translation = pose.getTranslation();
@@ -246,7 +253,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             rotation[3] = 90;
 
             pose = new Pose(translation, rotation);
-        } while (!plane.isPoseInPolygon(pose));
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
         keyPose = pose;
         Anchor anchor = plane.createAnchor(pose);
@@ -274,11 +289,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         float[] rotation;
         float randomX;
         float randomZ;
+        boolean isAlone;
         do{
             randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
             randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
             pose = plane.getCenterPose();
+
+            if(randomX > 0) randomX -= 0.2;
+            if(randomX < 0) randomX += 0.2;
+            if(randomZ > 0) randomZ -= 0.2;
+            if(randomZ < 0) randomZ += 0.2;
 
             translation = pose.getTranslation();
             translation[0] += randomX;
@@ -291,7 +312,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             rotation[3] = 90;
 
             pose = new Pose(translation, rotation);
-        } while (!plane.isPoseInPolygon(pose));
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, crowbarColor));
@@ -358,9 +387,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         float[] rotation;
         float randomX;
         float randomZ;
+        boolean isAlone;
         do{
             randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
             randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.25;
+            if(randomX < 0) randomX += 0.25;
+            if(randomZ > 0) randomZ -= 0.25;
+            if(randomZ < 0) randomZ += 0.25;
 
             pose = plane.getCenterPose();
 
@@ -371,7 +406,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             rotation = pose.getRotationQuaternion();
 
             pose = new Pose(translation, rotation);
-        } while (!plane.isPoseInPolygon(pose));
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
         treasureTrunkPose = pose;
         Anchor anchor = plane.createAnchor(pose);
@@ -430,11 +473,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         float[] rotation;
         float randomX;
         float randomZ;
+        boolean isAlone;
         do{
             randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
             randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
 
             pose = plane.getCenterPose();
+
+            if(randomX > 0) randomX -= 0.3;
+            if(randomX < 0) randomX += 0.3;
+            if(randomZ > 0) randomZ -= 0.3;
+            if(randomZ < 0) randomZ += 0.3;
 
             translation = pose.getTranslation();
             translation[0] += randomX;
@@ -443,7 +492,16 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             rotation = pose.getRotationQuaternion();
 
             pose = new Pose(translation, rotation);
-        } while (!plane.isPoseInPolygon(pose));
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
         Anchor anchor = plane.createAnchor(pose);
         anchors.add(new ColoredAnchor(anchor, woodenColor));
@@ -808,7 +866,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     isKeyTaken = true;
                     break;
                 }
-                if(getDistance(hit.getHitPose(), treasureTrunkPose) <= 0.2){
+                if(getDistance(hit.getHitPose(), treasureTrunkPose) <= 0.25){
                     Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), treasureTrunkPose));
 
                     runOnUiThread(new Runnable() {
