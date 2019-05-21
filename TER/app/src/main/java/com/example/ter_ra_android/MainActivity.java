@@ -859,6 +859,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Toast.makeText(MainActivity.this, "Clef récupéré !", Toast.LENGTH_SHORT).show();
                             mInventory.getMenu().findItem(R.id.inventory_key).setVisible(true);
                         }
                     });
@@ -873,7 +874,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                         @Override
                         public void run() {
                             if(isKeyTaken){
-                                Toast.makeText(MainActivity.this, "Gagné !", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Félicitations !\nLe coffre est maintenant ouvert !", Toast.LENGTH_SHORT).show();
                                 isTreasureTrunkSelected = false;
                                 mInventory.getMenu().findItem(R.id.inventory_key).setVisible(false);
                             }
