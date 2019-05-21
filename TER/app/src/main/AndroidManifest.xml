@@ -37,6 +37,9 @@
             android:screenOrientation="locked"
             android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
+        <activity
+            android:name=".Help">
+        </activity>
         <!--
  This tag indicates that this application requires ARCore.  This results in the Google Play
          Store downloading and installing ARCore along with the application.

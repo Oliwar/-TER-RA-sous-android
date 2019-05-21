@@ -15,17 +15,15 @@ public class Menu extends AppCompatActivity {
     }
 
     public void onJouerClick(View view) {
-        Toast.makeText(Menu.this, "Jouer", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
     public void onOptionsClick(View view) {
-        Toast.makeText(Menu.this, "Options", Toast.LENGTH_SHORT).show();
+        Toast.makeText(Menu.this, "Les options ne sont pas disponibles.", Toast.LENGTH_SHORT).show();
     }
 
     public void onAideClick(View view) {
-        Toast.makeText(Menu.this, "Aide", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, Help.class);
         startActivity(intent);
     }

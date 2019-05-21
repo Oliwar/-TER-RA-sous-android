@@ -50,12 +50,9 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
-import com.google.ar.core.Point;
-import com.google.ar.core.Point.OrientationMode;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
-import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
@@ -67,7 +64,6 @@ import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationExceptio
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -138,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private static final String SEARCHING_PLANE_MESSAGE = "Veuillez scanner la pièce puis cliquez sur \"Terminer\"";
 
     public void onMenuClick(View view) {
-        Log.e(TAG, "Menu");
-        Toast.makeText(MainActivity.this, "Menu", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, Menu.class);
         startActivity(intent);
     }
@@ -564,15 +558,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mInventory.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // handle desired action here
-                // One possibility of action is to replace the contents above the nav bar
-                // return true if you want the item to be displayed as the selected item
-
-                Log.e(TAG, item.getTitle().toString());
-                Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
-                //if(item.isVisible()) item.setVisible(false);
-                //else item.setVisible(true);
-
                 return true;
             }
         });
@@ -859,7 +844,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, "Clef récupéré !", Toast.LENGTH_SHORT).show();
+                            displayToast("Clef récupéré !");
                             mInventory.getMenu().findItem(R.id.inventory_key).setVisible(true);
                         }
                     });
@@ -873,12 +858,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(isKeyTaken){
-                                Toast.makeText(MainActivity.this, "Félicitations !\nLe coffre est maintenant ouvert !", Toast.LENGTH_SHORT).show();
-                                isTreasureTrunkSelected = false;
-                                mInventory.getMenu().findItem(R.id.inventory_key).setVisible(false);
-                            }
-                            else Toast.makeText(MainActivity.this, "Ce coffre est verrouillé!", Toast.LENGTH_SHORT).show();
+                            if(isKeyTaken) onWin();
+                            else displayToast("Ce coffre est verrouillé!");
                         }
                     });
 
@@ -913,4 +894,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         return Math.sqrt(dx * dx + dz * dz + dy * dy);
     }
 
+    private void onWin() {
+        displayToast("Félicitations !\nLe coffre est maintenant ouvert !");
+        isTreasureTrunkSelected = false;
+        mInventory.getMenu().findItem(R.id.inventory_key).setVisible(false);
+    }
+
+    private void displayToast(String s){
+        Toast toast = Toast.makeText(this, s, Toast.LENGTH_SHORT);
+        TextView v = toast.getView().findViewById(android.R.id.message);
+        if( v != null) v.setGravity(Gravity.CENTER);
+        toast.setGravity(Gravity.CENTER, 0 , 0);
+        toast.show();
+    }
 }

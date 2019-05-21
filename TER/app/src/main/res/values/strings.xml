@@ -18,13 +18,13 @@
     <string name="quitter">Quitter</string>
     <string name="options">Options</string>
     <string name="jouer">Jouer</string>
-    <string name="key">Clés</string>
+    <string name="key">Clef</string>
     <string name="menu">Menu</string>
     <string name="togglebutton">ToggleButton</string>
     <string name="inventory_visible">↓</string>
     <string name="inventory_invisible">↑</string>
     <string name="aide">Aide</string>
-    <string name="help_instructions">1- Scanner la pièce\n\n2- Appuyer sur "Terminer"\n\n3- Jouer!</string>
+    <string name="help_instructions">1- Scanner la pièce.\n\n2- Appuyer sur "Terminer".\n\n3- Trouver la clef pour ouvrir le coffre.</string>
     <string name="help_title">Instructions</string>
     <string name="terminer">Terminer</string>
     <string name="menu_title">Escape game</string>
