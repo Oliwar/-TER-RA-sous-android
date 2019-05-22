@@ -18,7 +18,9 @@
     <string name="quitter">Quitter</string>
     <string name="options">Options</string>
     <string name="jouer">Jouer</string>
-    <string name="key">Clef</string>
+    <string name="yellowKey">Clef jaune</string>
+    <string name="blueKey">Clef bleue</string>
+    <string name="greenKey">Clef verte</string>
     <string name="menu">Menu</string>
     <string name="togglebutton">ToggleButton</string>
     <string name="inventory_visible">↓</string>

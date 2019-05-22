@@ -17,7 +17,6 @@ package com.example.ter_ra_android;
  */
 
 import android.animation.Animator;
-import android.content.ClipData;
 import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -88,22 +87,34 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private boolean isHide = false;
     private boolean isHideForever = false;
     private boolean displayPlane = true;
-    private boolean isKeyTaken = false;
-    private boolean isTreasureTrunkSelected = false;
+    private boolean isYellowKeyTaken = false;
+    private boolean isBlueKeyTaken = false;
+    private boolean isGreenKeyTaken = false;
+    private boolean isYellowChestOpen = false;
+    private boolean isBlueChestOpen = false;
+    private boolean isGreenChestOpen = false;
 
     //Objects color
     private static final float[] crowbarColor = {75.0f, 0.0f, 0.0f, 255.0f};
-    private static final float[] keyColor = {252.0f, 220.0f, 18.0f, 255.0f};
+    private static final float[] yellowKeyColor = {252.0f, 220.0f, 18.0f, 255.0f};
+    private static final float[] blueKeyColor = {0.0f, 0.0f, 255.0f, 255.0f};
+    private static final float[] greenKeyColor = {0.0f, 150.0f, 0.0f, 255.0f};
     private static final float[] sideTableColor = {120.0f, 84.0f, 71.0f, 255.0f};
-    private static final float[] treasureTrunkColor = {121.0f, 84.0f, 71.0f, 255.0f};
+    private static final float[] yellowTreasureTrunkColor = {253.0f, 220.0f, 18.0f, 255.0f};
+    private static final float[] blueTreasureTrunkColor = {1.0f, 0.0f, 255.0f, 255.0f};
+    private static final float[] greenTreasureTrunkColor = {1.0f, 150.0f, 0.0f, 255.0f};
     private static final float[] cornerTableColor = {122.0f, 84.0f, 71.0f, 255.0f};
     private static final float[] woodenColor = {123.0f, 84.0f, 71.0f, 255.0f};
 
     //Objects pose
     private static Pose crowbarPose;
-    private static Pose keyPose;
+    private static Pose yellowKeyPose;
+    private static Pose blueKeyPose;
+    private static Pose greenKeyPose;
     private static Pose sideTablePose;
-    private static Pose treasureTrunkPose;
+    private static Pose yellowTreasureTrunkPose;
+    private static Pose blueTreasureTrunkPose;
+    private static Pose greenTreasureTrunkPose;
     private static Pose cornerTablePose;
     private static Pose woodenPose;
 
@@ -196,15 +207,19 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private void placeObjects() {
-        placeKey(); //ok
-        placeCrowbar(); //ok
+        placeYellowKey(); //ok
+        placeBlueKey(); //ok
+        placeGreenKey(); //ok
+        //placeCrowbar(); //ok
         //placeSideTable(); //ameliorer le placement random
-        placeTreasureTrunk(); //ok
+        placeYellowTreasureTrunk(); //ok
+        placeBlueTreasureTrunk(); //ok
+        placeGreenTreasureTrunk(); //ok
         //placeCornerTable(); //pas de texture
-        placeWooden(); //Pas très plat
+        //placeWooden(); //Pas très plat
     }
 
-    private void placeKey() {
+    private void placeYellowKey() {
         Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
@@ -257,9 +272,125 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
         } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
-        keyPose = pose;
+        yellowKeyPose = pose;
         Anchor anchor = plane.createAnchor(pose);
-        anchors.add(new ColoredAnchor(anchor, keyColor));
+        anchors.add(new ColoredAnchor(anchor, yellowKeyColor));
+    }
+
+    private void placeBlueKey() {
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
+
+        int rng;
+        Plane plane;
+        float minX = 0.5f;
+        float minZ = 0.5f;
+        do{
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
+
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        boolean isAlone;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.1;
+            if(randomX < 0) randomX += 0.1;
+            if(randomZ > 0) randomZ -= 0.1;
+            if(randomZ < 0) randomZ += 0.1;
+
+            pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
+
+            rotation = pose.getRotationQuaternion();
+            rotation[0] = 90;
+            rotation[1] = 0;
+            rotation[2] = 0;
+            rotation[3] = 90;
+
+            pose = new Pose(translation, rotation);
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
+
+        blueKeyPose = pose;
+        Anchor anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, blueKeyColor));
+    }
+
+    private void placeGreenKey() {
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
+
+        int rng;
+        Plane plane;
+        float minX = 0.5f;
+        float minZ = 0.5f;
+        do{
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
+
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        boolean isAlone;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.1;
+            if(randomX < 0) randomX += 0.1;
+            if(randomZ > 0) randomZ -= 0.1;
+            if(randomZ < 0) randomZ += 0.1;
+
+            pose = plane.getCenterPose();
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
+
+            rotation = pose.getRotationQuaternion();
+            rotation[0] = 90;
+            rotation[1] = 0;
+            rotation[2] = 0;
+            rotation[3] = 90;
+
+            pose = new Pose(translation, rotation);
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
+
+        greenKeyPose = pose;
+        Anchor anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, greenKeyColor));
     }
 
     private void placeCrowbar() {
@@ -360,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         anchors.add(new ColoredAnchor(anchor, sideTableColor));
     }
 
-    private void placeTreasureTrunk() {
+    private void placeYellowTreasureTrunk() {
         Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
 
         int rng;
@@ -410,9 +541,119 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
         } while (!plane.isPoseInPolygon(pose) || !isAlone);
 
-        treasureTrunkPose = pose;
+        yellowTreasureTrunkPose = pose;
         Anchor anchor = plane.createAnchor(pose);
-        anchors.add(new ColoredAnchor(anchor, treasureTrunkColor));
+        anchors.add(new ColoredAnchor(anchor, yellowTreasureTrunkColor));
+    }
+
+    private void placeBlueTreasureTrunk() {
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
+
+        int rng;
+        Plane plane;
+        float minX = 2;
+        float minZ = 2;
+        do{
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
+
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        boolean isAlone;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.25;
+            if(randomX < 0) randomX += 0.25;
+            if(randomZ > 0) randomZ -= 0.25;
+            if(randomZ < 0) randomZ += 0.25;
+
+            pose = plane.getCenterPose();
+
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
+
+            rotation = pose.getRotationQuaternion();
+
+            pose = new Pose(translation, rotation);
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
+
+        blueTreasureTrunkPose = pose;
+        Anchor anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, blueTreasureTrunkColor));
+    }
+
+    private void placeGreenTreasureTrunk() {
+        Plane[] planes = session.getAllTrackables(Plane.class).toArray(new Plane[0]);
+
+        int rng;
+        Plane plane;
+        float minX = 2;
+        float minZ = 2;
+        do{
+            rng = rand.nextInt(planes.length);
+            plane = planes[rng];
+        } while ( !(plane.getType().equals(Plane.Type.HORIZONTAL_UPWARD_FACING))
+                || !(plane.getTrackingState().equals(TrackingState.TRACKING))
+                || (plane.getExtentX() < minX)
+                || (plane.getExtentZ() < minZ)
+                || !plane.isPoseInPolygon(plane.getCenterPose()));
+
+        Pose pose;
+        float[] translation;
+        float[] rotation;
+        float randomX;
+        float randomZ;
+        boolean isAlone;
+        do{
+            randomX = (plane.getExtentX() * rand.nextFloat()) - ( plane.getExtentX() / 2 );
+            randomZ = (plane.getExtentZ() * rand.nextFloat()) - ( plane.getExtentZ() / 2 );
+
+            if(randomX > 0) randomX -= 0.25;
+            if(randomX < 0) randomX += 0.25;
+            if(randomZ > 0) randomZ -= 0.25;
+            if(randomZ < 0) randomZ += 0.25;
+
+            pose = plane.getCenterPose();
+
+            translation = pose.getTranslation();
+            translation[0] += randomX;
+            translation[2] += randomZ;
+
+            rotation = pose.getRotationQuaternion();
+
+            pose = new Pose(translation, rotation);
+
+            isAlone = true;
+            for(Anchor anchor : plane.getAnchors()){
+                if(getDistance(anchor.getPose(), pose) < 0.3){
+                    isAlone = false;
+                    break;
+                }
+            }
+        } while (!plane.isPoseInPolygon(pose) || !isAlone);
+
+        greenTreasureTrunkPose = pose;
+        Anchor anchor = plane.createAnchor(pose);
+        anchors.add(new ColoredAnchor(anchor, greenTreasureTrunkColor));
     }
 
     private void placeCornerTable() {
@@ -553,8 +794,16 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private void initInventory(){
         mInventory = findViewById(R.id.inventory);
-        MenuItem key = mInventory.getMenu().findItem(R.id.inventory_key);
-        key.setVisible(false);
+        MenuItem yellowKey = mInventory.getMenu().findItem(R.id.inventory_yellow_key);
+        MenuItem blueKey = mInventory.getMenu().findItem(R.id.inventory_blue_key);
+        MenuItem greenKey = mInventory.getMenu().findItem(R.id.inventory_green_key);
+
+        yellowKey.setVisible(false);
+        blueKey.setVisible(false);
+        greenKey.setVisible(false);
+        yellowKey.setChecked(false);
+        blueKey.setChecked(false);
+        greenKey.setChecked(false);
         mInventory.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -802,8 +1051,20 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     virtualCrowbar.updateModelMatrix(anchorMatrix, 0.002f);
                     virtualCrowbar.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-                else if(Arrays.equals(coloredAnchor.color, keyColor)){
-                    if(!isKeyTaken) {
+                else if(Arrays.equals(coloredAnchor.color, yellowKeyColor)){
+                    if(!isYellowKeyTaken) {
+                        virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
+                        virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                    }
+                }
+                else if(Arrays.equals(coloredAnchor.color, blueKeyColor)){
+                    if(!isBlueKeyTaken) {
+                        virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
+                        virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                    }
+                }
+                else if(Arrays.equals(coloredAnchor.color, greenKeyColor)){
+                    if(!isGreenKeyTaken) {
                         virtualKey.updateModelMatrix(anchorMatrix, 0.001f);
                         virtualKey.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                     }
@@ -812,7 +1073,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     virtualSideTable.updateModelMatrix(anchorMatrix, 2.0f);
                     virtualSideTable.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
-                else if(Arrays.equals(coloredAnchor.color, treasureTrunkColor)){
+                else if(Arrays.equals(coloredAnchor.color, yellowTreasureTrunkColor)){
+                    virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.03f);
+                    virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
+                else if(Arrays.equals(coloredAnchor.color, blueTreasureTrunkColor)){
+                    virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.03f);
+                    virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
+                }
+                else if(Arrays.equals(coloredAnchor.color, greenTreasureTrunkColor)){
                     virtualTreasureTrunk.updateModelMatrix(anchorMatrix, 0.03f);
                     virtualTreasureTrunk.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 }
@@ -838,27 +1107,117 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
             for (HitResult hit : frame.hitTest(tap)) {
 
-                if(getDistance(hit.getHitPose(), keyPose) <= 0.1){
-                    Log.e(TAG, "Clef clické : " + getDistance(hit.getHitPose(), keyPose));
+                if(getDistance(hit.getHitPose(), yellowKeyPose) <= 0.1){
+                    Log.e(TAG, "Clef clické : " + getDistance(hit.getHitPose(), yellowKeyPose));
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            displayToast("Clef récupéré !");
-                            mInventory.getMenu().findItem(R.id.inventory_key).setVisible(true);
+                            displayToast("Clef jaune récupérée !");
+                            mInventory.getMenu().findItem(R.id.inventory_yellow_key).setVisible(true).setChecked(true);
                         }
                     });
 
-                    isKeyTaken = true;
+                    isYellowKeyTaken = true;
                     break;
                 }
-                if(getDistance(hit.getHitPose(), treasureTrunkPose) <= 0.25){
-                    Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), treasureTrunkPose));
+                else if (getDistance(hit.getHitPose(), blueKeyPose) <= 0.1) {
+                    Log.e(TAG, "Clef clické : " + getDistance(hit.getHitPose(), blueKeyPose));
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(isKeyTaken) onWin();
+                            displayToast("Clef bleue récupérée !");
+                            mInventory.getMenu().findItem(R.id.inventory_blue_key).setVisible(true).setChecked(true);
+                        }
+                    });
+
+                    isBlueKeyTaken = true;
+                    break;
+                }
+                else if (getDistance(hit.getHitPose(), greenKeyPose) <= 0.1) {
+                    Log.e(TAG, "Clef clické : " + getDistance(hit.getHitPose(), greenKeyPose));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayToast("Clef verte récupérée !");
+                            mInventory.getMenu().findItem(R.id.inventory_green_key).setVisible(true).setChecked(true);
+                        }
+                    });
+
+                    isGreenKeyTaken = true;
+                    break;
+                }
+                else if(getDistance(hit.getHitPose(), yellowTreasureTrunkPose) <= 0.25){
+                    Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), yellowTreasureTrunkPose));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mInventory.getMenu().findItem(R.id.inventory_yellow_key).isChecked() && mInventory.getMenu().findItem(R.id.inventory_yellow_key).isVisible()){
+                                displayToast("Félicitations !\nLe coffre jaune est maintenant ouvert !");
+                                mInventory.getMenu().findItem(R.id.inventory_yellow_key).setVisible(false).setChecked(false);
+                                for(int i = 0; i < mInventory.getMenu().size(); ++i){
+                                    if(mInventory.getMenu().getItem(i).isVisible()){
+                                        mInventory.getMenu().getItem(i).setChecked(true);
+                                        break;
+                                    }
+                                }
+                                isYellowChestOpen = true;
+                                ckeckWin();
+                            }
+                            else if(isYellowChestOpen) displayToast("Ce coffre est déjà ouvert !");
+                            else displayToast("Ce coffre est verrouillé!");
+                        }
+                    });
+
+                    break;
+                }
+                else if(getDistance(hit.getHitPose(), blueTreasureTrunkPose) <= 0.25){
+                    Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), blueTreasureTrunkPose));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mInventory.getMenu().findItem(R.id.inventory_blue_key).isChecked() && mInventory.getMenu().findItem(R.id.inventory_blue_key).isVisible()){
+                                displayToast("Félicitations !\nLe coffre bleue est maintenant ouvert !");
+                                mInventory.getMenu().findItem(R.id.inventory_blue_key).setVisible(false).setChecked(false);
+                                for(int i = 0; i < mInventory.getMenu().size(); ++i){
+                                    if(mInventory.getMenu().getItem(i).isVisible()){
+                                        mInventory.getMenu().getItem(i).setChecked(true);
+                                        break;
+                                    }
+                                }
+                                isBlueChestOpen = true;
+                                ckeckWin();
+                            }
+                            else if(isBlueChestOpen) displayToast("Ce coffre est déjà ouvert !");
+                            else displayToast("Ce coffre est verrouillé!");
+                        }
+                    });
+
+                    break;
+                }
+                else if(getDistance(hit.getHitPose(), greenTreasureTrunkPose) <= 0.25){
+                    Log.e(TAG, "Coffre clické : " + getDistance(hit.getHitPose(), greenTreasureTrunkPose));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mInventory.getMenu().findItem(R.id.inventory_green_key).isChecked() && mInventory.getMenu().findItem(R.id.inventory_green_key).isVisible()){
+                                displayToast("Félicitations !\nLe coffre vert est maintenant ouvert !");
+                                mInventory.getMenu().findItem(R.id.inventory_green_key).setVisible(false).setChecked(false);
+                                for(int i = 0; i < mInventory.getMenu().size(); ++i){
+                                    if(mInventory.getMenu().getItem(i).isVisible()){
+                                        mInventory.getMenu().getItem(i).setChecked(true);
+                                        break;
+                                    }
+                                }
+                                isGreenChestOpen = true;
+                                ckeckWin();
+                            }
+                            else if(isGreenChestOpen) displayToast("Ce coffre est déjà ouvert !");
                             else displayToast("Ce coffre est verrouillé!");
                         }
                     });
@@ -894,10 +1253,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         return Math.sqrt(dx * dx + dz * dz + dy * dy);
     }
 
-    private void onWin() {
-        displayToast("Félicitations !\nLe coffre est maintenant ouvert !");
-        isTreasureTrunkSelected = false;
-        mInventory.getMenu().findItem(R.id.inventory_key).setVisible(false);
+    private void ckeckWin() {
+        if(isYellowChestOpen && isBlueChestOpen && isGreenChestOpen)
+            displayToast("Félicitations !\nTous les coffres sont ouverts !");
     }
 
     private void displayToast(String s){
@@ -907,4 +1265,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         toast.setGravity(Gravity.CENTER, 0 , 0);
         toast.show();
     }
+
+
 }
