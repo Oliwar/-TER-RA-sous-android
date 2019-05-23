@@ -26,7 +26,7 @@
     <string name="inventory_visible">↓</string>
     <string name="inventory_invisible">↑</string>
     <string name="aide">Aide</string>
-    <string name="help_instructions">1- Scanner la pièce.\n\n2- Appuyer sur "Terminer".\n\n3- Trouver la clef pour ouvrir le coffre.</string>
+    <string name="help_instructions">1- Scanner la pièce.\n\n2- Appuyer sur "Terminer".\n\n3- Trouver les clés correspondant aux coffres pour les ouvrir.</string>
     <string name="help_title">Instructions</string>
     <string name="terminer">Terminer</string>
     <string name="menu_title">Escape game</string>

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -1168,7 +1169,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                                 ckeckWin();
                             }
                             else if(isYellowChestOpen) displayToast("Ce coffre est déjà ouvert !");
-                            else displayToast("Ce coffre est verrouillé!");
+                            else displayToast("Ce coffre nécessite la clef jaune !");
                         }
                     });
 
@@ -1193,7 +1194,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                                 ckeckWin();
                             }
                             else if(isBlueChestOpen) displayToast("Ce coffre est déjà ouvert !");
-                            else displayToast("Ce coffre est verrouillé!");
+                            else displayToast("Ce coffre nécessite la clef bleue !");
                         }
                     });
 
@@ -1218,7 +1219,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                                 ckeckWin();
                             }
                             else if(isGreenChestOpen) displayToast("Ce coffre est déjà ouvert !");
-                            else displayToast("Ce coffre est verrouillé!");
+                            else displayToast("Ce coffre nécessite la clef verte !");
                         }
                     });
 
@@ -1259,12 +1260,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private void displayToast(String s){
-        Toast toast = Toast.makeText(this, s, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(this, s, Toast.LENGTH_LONG);
         TextView v = toast.getView().findViewById(android.R.id.message);
         if( v != null) v.setGravity(Gravity.CENTER);
         toast.setGravity(Gravity.CENTER, 0 , 0);
         toast.show();
     }
-
-
 }
